@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploydescriptor>
 	<global>
-		<version>143</version>
+		<version>144</version>
 		<id>treeview</id>
-        <license>GPL-v2</license>
+                <patchlevel>1</patchlevel>
+                <license>GPL-v2</license>
 		<vendor>ontoprise GmbH</vendor>
 		<maintainer>ontoprise GmbH</maintainer>
 		<instdir>extensions/Treeview</instdir>
@@ -12,8 +13,7 @@
 		</description>
 		<helpurl>http://smwforum.ontoprise.com/smwforum/index.php/Help:TreeView_Extension</helpurl>
 		<dependencies>
-			<dependency from="146">smwhalo</dependency>
-            <dependency from="101">scriptmanager</dependency>
+			<dependency from="156">smwhalo</dependency>
             <dependency from="153" to="156" optional="true">smwplus</dependency>
 		</dependencies>
 		<notice></notice>
