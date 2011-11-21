@@ -3,7 +3,7 @@
 	<global>
 		<version>144</version>
 		<id>treeview</id>
-                <patchlevel>1</patchlevel>
+                <patchlevel>2</patchlevel>
                 <license>GPL-v2</license>
 		<vendor>ontoprise GmbH</vendor>
 		<maintainer>ontoprise GmbH</maintainer>
