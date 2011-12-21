@@ -36,17 +36,42 @@ if ( !defined( 'MEDIAWIKI' ) ) {
  * Switch on the TreeView extension. This function must be called in
  * LocalSettings.php after TV_Initialize.php was included and default values
  * that are defined there have been modified.
- * For readability, this is the only global function that does not adhere to the
- * naming conventions.
+ * For readability, this is the only global function of the extension.
  *
- * This function installs the extension, sets up all autoloading, special pages
- * etc.
  */
 function enableTreeView() {
+	return TreeViewExtension::enable();
+}
+
+
+
+/**
+ * This is the main class of the TreeView extension. It consists mainly of 
+ * static methods for setting up the extension.
+ * 
+ * @author Thomas Schweitzer
+ * 
+ */
+class TreeViewExtension  {
+	
+	//--- Constants ---
+		
+	//--- Private fields ---
+	
+
+	//--- getter/setter ---
+	
+	//--- Public methods ---
+	
+	/**
+	 * This function installs the extension, sets up all autoloading, special 
+	 * pages etc.
+	 */
+	public static function enable() {
 	global $tvgIP, $wgExtensionFunctions, $wgAutoloadClasses,  
 	       $wgExtensionMessagesFiles, $wgLanguageCode;
 
-	$wgExtensionFunctions[] = 'tvfSetupExtension';
+		$wgExtensionFunctions[] = 'TreeViewExtension::setupExtension';
 	$wgExtensionMessagesFiles['TreeView'] = $tvgIP . '/languages/TV_Messages.php'; // register messages (requires MW=>1.11)
 
 	///// Set up autoloading; essentially all classes should be autoloaded!
@@ -60,7 +85,7 @@ function enableTreeView() {
 	global $wgHooks;
 	$wgHooks['ParserFirstCallInit'][] = 'TVParserFunctions::initParserFunctions';
 	$wgHooks['LanguageGetMagic'][]    = 'TVParserFunctions::languageGetMagic';
-	$wgHooks['MakeGlobalVariablesScript'][] = 'tvfOnResourceLoaderGetConfigVars';
+		$wgHooks['MakeGlobalVariablesScript'][] = 'TreeViewExtension::onResourceLoaderGetConfigVars';
 	$wgHooks['MakeGlobalVariablesScript'][] = "FSFacetedSearchSpecial::addJavaScriptVariables";
 	
 	$wgHooks['FacetedSearchExtensionTop'][] = 'TVFacetedSearchExtension::injectTreeViewDefinition';
@@ -69,9 +94,10 @@ function enableTreeView() {
 	
 	$wgHooks['OntoSkinInsertTreeNavigation'][] = 'TVNavigationTree::showNavigationTree';
 	
-	tvfInitContentLanguage($wgLanguageCode);
+		self::initContentLanguage($wgLanguageCode);
 
 	return true;
+			
 }
 
 /**
@@ -81,17 +107,13 @@ function enableTreeView() {
  * The main things this function does are: register all hooks, set up extension
  * credits, and init some globals that are not for configuration settings.
  */
-function tvfSetupExtension() {
-	wfProfileIn('tvfSetupExtension');
+	public static function setupExtension() {
+		wfProfileIn('TreeViewExtension::setupExtension');
 	global $tvgIP, $wgHooks, $wgExtensionCredits;
 
 	//--- Register hooks ---
-//	$wgHooks['userCan'][] = 'HACLEvaluator::userCan';
 
-	// Register hooks
-//	$wgHooks['ArticleSaveComplete'][]  = 'HACLParserFunctions::articleSaveComplete';
-
-	tvfSetupScriptAndStyleModule();
+		self::setupScriptAndStyleModule();
 
 	//--- credits (see "Special:Version") ---
 	$wgExtensionCredits['semantic'][]= array(
@@ -101,15 +123,57 @@ function tvfSetupExtension() {
         'url'=>'http://smwforum.ontoprise.com/smwforum/index.php/Help:TreeView_extension',
         'description' => 'Generates trees based on semantic properties.');
 
-	wfProfileOut('tvfSetupExtension');
+		wfProfileOut('TreeViewExtension::setupExtension');
+		return true;
+	}
+	
+	/**
+	 * Adds configuration variables to the Resource Loader. They can be accessed in
+	 * JavaScript.
+	 * 
+	 * @param $vars
+	 */
+	public static function onResourceLoaderGetConfigVars(&$vars) {
+		global $tvgTreeThemes;
+		$vars['tvgTreeThemes'] = $tvgTreeThemes;
 	return true;
 }
 
 /**
+	 * Language dependent identifiers in $text that have the format {{identifier}}
+	 * are replaced by the language string that corresponds to the identifier.
+	 * 
+	 * @param string $text
+	 * 		Text with language identifiers
+	 * @return string
+	 * 		Text with replaced language identifiers.
+	 */
+	public static function replaceLanguageStrings($text) {
+		// Find all identifiers
+		$numMatches = preg_match_all("/(\{\{(.*?)\}\})/", $text, $identifiers);
+		if ($numMatches === 0) {
+			return $text;
+		}
+
+		// Get all language strings
+		$langStrings = array();
+		foreach ($identifiers[2] as $id) {
+			$langStrings[] = wfMsg($id);
+		}
+		
+		// Replace all language identifiers
+		$text = str_replace($identifiers[1], $langStrings, $text);
+		return $text;
+	}
+    
+	
+	//--- Private methods ---
+	
+	/**
  * Creates a module for the resource loader that contains all scripts and styles
  * that are needed for this extension.
  */
-function tvfSetupScriptAndStyleModule() {
+	private static function setupScriptAndStyleModule() {
 	global $wgResourceModules, $tvgIP, $tvgScriptPath;
 	$moduleTemplate = array(
 		'localBasePath' => $tvgIP,
@@ -167,12 +231,12 @@ function tvfSetupScriptAndStyleModule() {
  * determine labels for additional parser functions. In contrast, messages
  * can be initialised much later when they are actually needed.
  */
-function tvfInitContentLanguage($langcode) {
+	private static function initContentLanguage($langcode) {
 	global $tvgIP, $tvgContLang;
 	if (!empty($tvgContLang)) {
 		return;
 	}
-	wfProfileIn('tvfInitContentLanguage');
+		wfProfileIn('TreeViewExtension::initContentLanguage');
 
 	$tvContLangFile = 'TV_Language' . str_replace( '-', '_', ucfirst( $langcode ) );
 	$tvContLangClass = 'TVLanguage' . str_replace( '-', '_', ucfirst( $langcode ) );
@@ -187,17 +251,7 @@ function tvfInitContentLanguage($langcode) {
 	}
 	$tvgContLang = new $tvContLangClass();
 
-	wfProfileOut('tvfInitContentLanguage');
+		wfProfileOut('TreeViewExtension::initContentLanguage');
 }
 
-/**
- * Adds configuration variables to the Resource Loader. They can be accessed in
- * JavaScript.
- * 
- * @param $vars
- */
-function tvfOnResourceLoaderGetConfigVars(&$vars) {
-	global $tvgTreeThemes;
-	$vars['tvgTreeThemes'] = $tvgTreeThemes;
-	return true;
 }

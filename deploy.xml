@@ -2,7 +2,7 @@
 <deploydescriptor>
 	<global>
 		<id>treeview</id>
-        <patchlevel>1</patchlevel>
+        <patchlevel>2</patchlevel>
 		<title>Semantic Treeview extension</title>
 		<version>2.0.0</version>
         <license>GPL-v2</license>
