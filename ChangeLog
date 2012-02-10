@@ -1,5 +1,21 @@
 Treeview extension ChangeLog
 ============================
+Version 2.0.0 - Patchlevel 4
+  BUGFIXES:
+	16659 - Tree-Parser function does not work in IE 8
+
+Version 2.0.0 - Patchlevel 3
+  BUGFIXES:
+	The generator for the parser function syntax contained the hard coded name of
+	a property.
+
+Version 2.0.0 - Patchlevel 2
+  BUGFIXES:
+	Added the parameters filter, width and height to the {{#tree}} parser function
+	
+Version 2.0.0 - Patchlevel 1
+  BUGFIXES:
+	Wrong script was used for the initialization of the extension.
 
 VERSION 1.4.3
 
